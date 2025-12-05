@@ -136,9 +136,9 @@ sudo apt-get install -y --no-install-recommends python3-requests > /dev/null 2>&
 echo "📦 Installing tiktoken..."
 pip3 install --break-system-packages tiktoken > /dev/null 2>&1
 
-# Install ast-grep for code analysis
+# Install ast-grep for code analysis (with timeout protection)
 echo "🔍 Installing ast-grep..."
-npm install -g @ast-grep/cli > /dev/null 2>&1
+timeout 60 npm install -g @ast-grep/cli > /dev/null 2>&1 || echo "   ⚠️ ast-grep install timed out, skipping"
 
 echo ""
 echo "✅ Secure sandbox environment ready!"
