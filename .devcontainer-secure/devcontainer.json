@@ -7,14 +7,14 @@
   "containerUser": "node",
 
   // Features: Core development tools only
+  // Note: claude-code can be installed manually with: npm install -g @anthropic-ai/claude-code
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
       "version": "os-provided"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {
       "version": "latest"
-    },
-    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {}
+    }
   },
 
   // Security: Minimal capabilities, NO host access, NO SSH agent
