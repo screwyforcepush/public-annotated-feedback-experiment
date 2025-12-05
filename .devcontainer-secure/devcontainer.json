@@ -1,0 +1,64 @@
+{
+  "name": "Secure Sandbox",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
+
+  // Security: Run as non-root user
+  "remoteUser": "node",
+  "containerUser": "node",
+
+  // Features: Core development tools only
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "os-provided"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {}
+  },
+
+  // Security: Minimal capabilities, NO host access
+  "capAdd": [],
+  "securityOpt": [],
+  "runArgs": [
+    "--cap-drop=SYS_ADMIN",
+    "--cap-drop=NET_ADMIN",
+    "--cap-drop=NET_RAW",
+    "--shm-size=512m"
+  ],
+
+  // Environment: GitHub-only, no external services
+  "containerEnv": {
+    "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+    "GH_TOKEN": "${localEnv:GITHUB_TOKEN}",
+    "REPO_URL": "${localEnv:REPO_URL}",
+    "REPO_OWNER": "${localEnv:REPO_OWNER}",
+    "REPO_NAME": "${localEnv:REPO_NAME}",
+    "BRANCH_NAME": "${localEnv:BRANCH_NAME:main}",
+    "SANDBOX_MODE": "secure"
+  },
+
+  // NO port forwarding - fully isolated
+  // "forwardPorts": [],
+
+  // Lifecycle scripts
+  "postCreateCommand": "bash .devcontainer-secure/post-create.sh",
+  "postStartCommand": "bash .devcontainer-secure/auth-setup.sh",
+  "onCreateCommand": "echo 'Secure Sandbox environment created'",
+
+  // Resource limits
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "32gb"
+  },
+
+  // Customizations
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}
