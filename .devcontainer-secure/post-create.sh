@@ -4,6 +4,40 @@ set -euo pipefail
 echo "🔒 Setting up SECURE sandbox environment..."
 echo ""
 
+# ============================================
+# SECURITY HARDENING - Run first!
+# ============================================
+
+# Kill SSH agent forwarding - remove socket and unset variable
+if [ -n "${SSH_AUTH_SOCK:-}" ]; then
+    echo "🔐 Disabling SSH agent forwarding..."
+    rm -f "${SSH_AUTH_SOCK}" 2>/dev/null || true
+fi
+unset SSH_AUTH_SOCK
+export SSH_AUTH_SOCK=""
+
+# Prevent SSH agent from being set in future shells
+echo "" >> ~/.bashrc
+echo "# SECURITY: Disable SSH agent forwarding" >> ~/.bashrc
+echo "unset SSH_AUTH_SOCK" >> ~/.bashrc
+echo "export SSH_AUTH_SOCK=''" >> ~/.bashrc
+
+# Remove any SSH keys that might have been copied
+rm -rf ~/.ssh/id_* ~/.ssh/known_hosts 2>/dev/null || true
+
+# Verify no SSH agent access
+if ssh-add -l 2>/dev/null; then
+    echo "⚠️  WARNING: SSH agent still accessible - attempting to block"
+    unset SSH_AUTH_SOCK
+fi
+
+echo "✓ SSH agent forwarding disabled"
+echo ""
+
+# ============================================
+# Standard setup continues below
+# ============================================
+
 # Validate required environment variables
 if [ -z "${GITHUB_TOKEN:-}" ]; then
     echo "❌ Error: GITHUB_TOKEN environment variable is not set"
@@ -118,6 +152,7 @@ echo "🔒 SECURE MODE - Security features:"
 echo "   ✓ Running as non-root user (node)"
 echo "   ✓ No host network access (host.docker.internal disabled)"
 echo "   ✓ No port forwarding to host"
+echo "   ✓ No SSH agent forwarding (host keys inaccessible)"
 echo "   ✓ No external API keys configured"
 echo "   ✓ Capabilities dropped: SYS_ADMIN, NET_ADMIN, NET_RAW"
 echo "   ✓ Fine-grained PAT: Single repository access only"

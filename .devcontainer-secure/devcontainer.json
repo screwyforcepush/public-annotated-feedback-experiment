@@ -17,7 +17,7 @@
     "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {}
   },
 
-  // Security: Minimal capabilities, NO host access
+  // Security: Minimal capabilities, NO host access, NO SSH agent
   "capAdd": [],
   "securityOpt": [],
   "runArgs": [
@@ -27,7 +27,16 @@
     "--shm-size=512m"
   ],
 
+  // SECURITY: Disable SSH agent forwarding
+  // This prevents the container from accessing host SSH keys
+  "initializeCommand": "echo 'Secure sandbox - SSH agent forwarding disabled'",
+
+  // Mounts: Explicitly empty to prevent any host mounts
+  // DevPod may still mount workspace, but no SSH agent socket
+  "mounts": [],
+
   // Environment: GitHub-only, no external services
+  // SSH_AUTH_SOCK explicitly unset to block SSH agent
   "containerEnv": {
     "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
     "GH_TOKEN": "${localEnv:GITHUB_TOKEN}",
@@ -35,7 +44,8 @@
     "REPO_OWNER": "${localEnv:REPO_OWNER}",
     "REPO_NAME": "${localEnv:REPO_NAME}",
     "BRANCH_NAME": "${localEnv:BRANCH_NAME:main}",
-    "SANDBOX_MODE": "secure"
+    "SANDBOX_MODE": "secure",
+    "SSH_AUTH_SOCK": ""
   },
 
   // NO port forwarding - fully isolated
